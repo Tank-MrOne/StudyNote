@@ -1,9 +1,12 @@
 ## webpack
 ### 1、webpack 介绍
 * 什么是webpack<https://www.webpackjs.com/>
-  * Webpack是一个模块打包器(bundler)。
+  * Webpack是一个模块打包器(bundler)。（构建工具、项目构建）
+    * 其他的构建工具，比如：grunt、gulp
   * 在Webpack看来, 前端的所有资源文件(js/json/css/img/less/...)都会作为模块处理
   * 它将根据模块的依赖关系进行静态分析，生成对应的静态资源
+  * 作用：
+    * 
 * 五个核心概念
   * Entry：入口起点(entry point)指示 webpack 应该使用哪个模块，来作为构建其内部依赖图的开始。
   * Output：output 属性告诉 webpack 在哪里输出它所创建的 bundles，以及如何命名这些文件
@@ -935,7 +938,7 @@ var webpackConfig = {
     ......
   },
   plugins: [
-    new HtmlWebpackPlugin({                     //第二步
+    	new HtmlWebpackPlugin({                     //第二步
             template: './src/public/index.html'  //设置html地址
         })    
   ] 
@@ -1027,6 +1030,20 @@ module: {
 ```shell
 npm install less less-loader --save-dev
 ```
+
+```js
+module.exports = {
+    ...
+    module: {
+        rules: [{
+            test: /\.less$/,
+            use: ['style-loader', 'css-loader','less-loader']
+        }]
+    }
+};
+```
+
+
 
 ### 打包图片文件
 安装插件
@@ -1247,6 +1264,63 @@ output: {
 
 
 
+## webpack进阶
+
+### 清空打包目录
+
+
+
+
+
+## ES6暴露方式
+
+- 默认暴露
+
+  ```js
+  export default {
+      name : 'Tank'
+  }
+  ```
+
+  ```js
+  import obj from './xxx'
+  ```
+
+  
+
+- 分别暴露
+
+  ```js
+  export function aaa(){
+  	...
+  }
+  export function bbb(){
+  	...
+  }
+  ```
+
+  ```js
+  import { aaa , bbb } from './xxx'
+  ```
+
+  
+
+- 统一暴露
+
+  ```js
+  const aaa = '111'
+  const bbb = '222'
+  
+  export { aaa , bbb } // 简写形式
+  export { aaa as aaa , bbb as bbb } // 完整形式
+  ```
+
+  ```js
+  import { aaa , bbb } from './xxx'
+  ```
+
+  
+
 
 
 
@@ -1293,6 +1367,43 @@ last 2 versions
 | not dead with > 0.2%   | 仍然还在使用且使用率大于 0.2%                         |
 | last 2 Chrome versions | 最新的两个 Chrome 配置                                |
 | cover 99.5%            | 99.5% 的浏览器都是目标                                |
+
+### 将CSS文件变成单独文件
+
+安装ExtractTextWebpackPlugin
+
+```shell
+npm install --save-dev extract-text-webpack-plugin
+```
+
+引入
+
+```js
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+```
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.less$/,
+        use: ExtractTextPlugin.extract({ // 3，然后ExtractTextPlugin生成文件
+          fallback: "style-loader",  // 4.如果失败将css写入js文件中
+          use: ["css-loader","less-loader"]// 1,首先处理less，2，再处理css
+        })
+      }
+    ]
+  },
+  plugins: [
+    // 实例化，取名叫index.css
+    new ExtractTextPlugin("css/index.css"),
+  ]
+}
+
+
+// 注意：  css-loader 需要降为3.6.0版本才可用
+```
 
 
 
