@@ -1017,15 +1017,30 @@ export default {
   
   // 引入组装好的整体组件App
   import App from './App.vue'
+  ```
   
+  ```js
+  // 第一种写法
   new Vue({
   	el : "#root",
   	render: v => v(App) 
       // 把导入过来的App组件配置对象，在vue模板当中注册解析为一个标签名<App/>并使用
-      // 并把这个标签在模板当中进行渲染
+    // 并把这个标签在模板当中进行渲染
   })
   ```
-
+  
+  ```js
+  // 第二种写法(用的很少)
+  import Vue from 'vue/dist/vue.esm.js'
+  new Vue({
+  	el : "#root",
+  	components:{
+  		App
+  	},
+  	template:"<App/>"  // 这种方式需要用解析器进行处理，需要导入vue/dist/vue.esm.js
+  })
+  ```
+  
   
 
 ## Vue组件间通信
@@ -1192,6 +1207,20 @@ module.exports = {
     ...
     resolve:{
     	extensions:['.js','.json'.'.vue']
+    }
+}
+```
+
+### 配置webpack，给路径取别名
+
+```
+module.exports = {
+    ...
+    resolve:{
+    	...,
+    	alias:{
+    		'^@':'...路径'
+    	}
     }
 }
 ```
