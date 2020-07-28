@@ -1049,14 +1049,61 @@ export default {
 
 > 父组件通过:xxx="value"的形式将数据传入子组件
 >
-> 在子组件模板中通过props属性接收数据
+> 在子组件模板中通过**props**属性接收数据
 
 ```vue
-<Mychildren :xxx="value"></Myparent>
+<Mychildren :xxx="value"></Mychildren>
 Vue.component('Mychildren',{
 	props:['xxx'],
     template : '<div>{{xxx}}</div>'
 })
+```
+
+**props**，组件间通信，只适用父子组件传递
+
+- 父给子传：可以传递函数数据和非函数数据
+- 子给父传：通过调用父传递过来的函数数据，然后通过参数给父传数据
+
+
+
+### 通过自定义事件传递数据
+
+> vue原型对象和组件都可以通过$on ,$emit来进行数据的传递
+
+```vue
+<!-- 父组件 -->
+<Mychildren ref="child"></Mychildren>
+
+<script>
+import Mychildren from './Mychildren.vue'
+export default {
+    components:{
+        Mychildren
+    },
+    mounted(){
+        // $on 绑定事件
+        this.$refs.child.$on("xxx",function(){
+            console.log("父组件定义的一个事件")
+        })
+    }  
+}
+</script>
+<!-- 
+$on 的第一个参数：“事件名”
+	第二个参数：绑定事件的回调函数
+-->
+```
+
+```vue
+<!-- 子组件 -->
+<script>
+export default {
+    mounted(){
+        // $emit 触发事件
+		this.$emit
+    }  
+}
+</script>
 ```
 
 

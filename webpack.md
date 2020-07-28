@@ -1502,6 +1502,7 @@ module.exports = {
   3. 注册serviceWorker
 
   ```javascript
+  // 一般写在入口js文件的最下面 ，用来判断浏览器是否有serviceWorker属性
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker
@@ -1515,22 +1516,30 @@ module.exports = {
     });
   }
   ```
+  
+  注意：PWA技术必须项目上线才能使用
 
-### 多进程打包
+### 多进程打包(优化webpack)
 
 * 概述：多进程打包可以让构建速度更快(不是绝对的)
 
 * 配置：```npm i thread-loader -D```
 
-* 修改babel-loader的配置，追加一个loader
+* 修改babel-loader的配置，追加一个loader ,
 
   ```js
-  {
-      loader: 'thread-loader',
-      options: {
-        workers: 2 // 进程2个
+  use:[
+      {
+          loader: 'babel-loader',
+  		...
+      },
+      {
+          loader: 'thread-loader',
+          options: {
+            workers: 2 // 进程2个( 并不是进程越多越好 )
+          }
       }
-   }
+  ]
   ```
 
 ### externals
@@ -1678,5 +1687,25 @@ module.exports = {
 // 注意：  css-loader 需要降为3.6.0版本才可用
 ```
 
+## 快速搭建一个服务器的方法
 
+1. Express
+
+2. json-server
+
+3. mock
+
+4. server
+
+   ```shell
+   -- 全局安装
+   npm server -g
+   ```
+
+   ```shell
+   -- 在项目已目录下运行cmd
+   server
+   ```
+
+   
 
