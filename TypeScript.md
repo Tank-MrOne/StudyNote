@@ -1,4 +1,4 @@
-# TypeScript
+# zTypeScript
 
 ## 初识TypeScript
 
@@ -1368,13 +1368,13 @@ yarn start
 
 <img src="https://s1.ax1x.com/2020/05/17/YgDpxf.png" alt="vue-ts1.png" style="zoom: 50%;" /> 
 
-<img src="https://s1.ax1x.com/2020/05/17/YgDSRP.png" alt="vue-ts2.png" style="zoom: 50%;" />
+<img src="https://s1.ax1x.com/2020/05/17/YgDSRP.png" alt="vue-ts2.png" style="zoom: 50%;" align="left" />
 
 
 
 选择TS及相关的环境配置
 
-<img src="https://s1.ax1x.com/2020/05/17/YgBzGt.png" alt="vue-ts3.png" style="zoom:50%;" />
+<img src="https://s1.ax1x.com/2020/05/17/YgBzGt.png" align="left"  alt="vue-ts3.png" style="zoom:50%;" />
 
 其它配置的选择
 

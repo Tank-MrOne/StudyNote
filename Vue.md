@@ -1064,6 +1064,23 @@ Vue.component('Mychildren',{
 - 父给子传：可以传递函数数据和非函数数据
 - 子给父传：通过调用父传递过来的函数数据，然后通过参数给父传数据
 
+**props接收数据的三种形式**
+
+```js
+props:['attr']
+
+props:{
+	attr : Number
+}
+
+props:{
+	attr:{
+		type : Number , 
+		default : 0
+	}
+}
+```
+
 
 
 ### 通过自定义事件传递数据
@@ -1100,11 +1117,360 @@ $on 的第一个参数：“事件名”
 export default {
     mounted(){
         // $emit 触发事件
-		this.$emit
+		this.$emit('xxx',[ 参数 ])
     }  
 }
 </script>
 ```
+
+```vue
+<!-- 父组件绑定事件的另一种写法 -->
+<Mychildren @xxx="functionName"></Mychildren>
+```
+
+#### 重点：
+
+vm的原型对象 === 组件对象原型对象的原型对象，
+
+主要就是让组件对象和vm对象都能够使用$on和$emit
+
+#### 自定义事件组件间通信深入理解
+
+自定义事件
+
+- 自己定义的事件、事件类型（自己定义）和回调函数（自己触发）
+- 系统定义的事件：事件类型（固定）和回调函数（系统触发）
+
+做法：
+
+- 在父组件当中可以看到子组件对象，给子组件对象绑定自定义事件$on，回调函数在父组件中
+- 在子组件当中，需要传递数据的地方，去触发自己身上的事件$emit，回调函数中传参给父组件
+
+适应：子向父通信
+
+原因：
+
+- 因为父组件内部可以看到子组件对象，可以给子组件对象绑定事件，回调函数在父组件定义
+
+- 而子组件内部看不到父组件对象，没法给父组件对象绑定事件，子组件没法定义回调函数，但是可以看到自己，可以触发
+
+接收数据的组件必须能看到预绑定事件的组件对象，才能绑定
+
+发送数据的组件必须能看到绑定了事件的组件对象，才能触发事件
+
+```
+$on		绑定事件
+$emit	触发事件
+$off	解绑事件（一般在 beforeDestory 钩子中执行）
+$once	只触发一次事件
+```
+
+
+
+### 全局事件总线
+
+首先让Vue的实例中添加一个全局的公共对象，Vue的实例可以使用原型中的$on 和 $emit，这样可以让所有的组件都可以找到这个对象
+
+> 适用于任意组件间通信
+>
+> 利用了自定义事件
+>
+> - 创建一个中间人，让所有的组件都可以看到这个人，并且这个人可以使用$on和$emit
+> - 在想要接收数据的组件内，找中间人去绑定事件
+> - 在想要发送数据的组件内，触发中间人绑定的事件
+
+```js
+// 写法1
+Vue.prototype.$globalEventBus = new Vue()
+
+// 写法2（推荐）
+new Vue({
+    beforeCreate(){
+        Vue.prototype.$bus = this
+    }，
+    el:"#app",
+    render : h=>h(App)
+})
+```
+
+```vue
+<script>
+// 组件1声明一个事件
+export default {
+	mounted(){
+		this.$bus.$on('functionName',this.functionName)
+	},
+    methods:{
+        functionName(){
+            ....
+        }
+    }
+}
+</script>
+
+<script>
+// 组件2触发一个事件
+export default {
+	methods:{
+        actionName(){
+            this.$bus.$emit('functionName')
+        }
+    }
+} 
+</script>
+```
+
+
+
+### 消息的订阅与发布PubSubJS
+
+首先下载安装PubSubJS第三方库依赖包
+
+```shell
+npm install -S pubsub-js
+```
+
+首先在用到的组件中导入
+
+```	js
+import PubSub from 'pubsub-js'
+```
+
+订阅消息
+
+```js
+PubSub.subscribe('functionName',functionName)
+
+/* 注意：订阅的回调函数中第一个参数为固定的消息名
+* @value1 参数 消息名
+* @value2 参数 传入的参数
+*/
+methods:{
+    functionName(value1 , value2){
+        ...
+    }
+}
+```
+
+发布消息
+
+```js
+PubSub.publish('functionName' ,value)
+```
+
+
+
+## Vue插槽
+
+> 插槽：父组件在子组件标签中编写的内容会显示在子组件的solt插槽中显示,一个template对应的就是一个插槽
+
+### 匿名插槽
+
+> 没有名字的插槽，在父组件当中没有写名字的插槽会默认传递给这个插槽使用
+>
+> - 如果插槽内部有内容，并且父组件也没有给插槽传递内容，那么默认的内容被显示
+> - 如果插槽内部有内容，父组件给插槽传递了内容，那么默认的内容被覆盖
+
+```vue
+<!-- 示例 -->
+<!-- 父组件 -->
+<template>
+	<Child>
+        <!-- 如果template内部只有一个标签可以简写 -->
+    	<template>
+			<h1>第一个插槽显示自己的内容</h1>
+		</template>
+    </Child>
+	<!-- 第二个子组件没有内容，则默认显示插槽的默认内容 -->
+	<Child></Child>
+</template>
+
+
+<!-- 子组件 -->
+<template>
+	<solt> 默认的插槽内容 </solt>
+</template>
+```
+
+**注意：**匿名插槽在使用当中只有一个
+
+
+
+### 具名插槽
+
+如果需要传给子组件固定的插槽去使用，那么需要使用具名插槽
+
+```vue
+<!-- 示例 -->
+<!-- 父组件 -->
+<template>
+	<Child>
+        <!-- template如果没有名字，默认是显示在匿名插槽中 -->
+    	<template>
+			<h1>
+               我是h1
+    		</h1>
+		</template>
+    </Child>
+	<!-- 给予solt属性去指定一个同名插槽显示 -->
+	<Child>
+		<div solt="abc">
+            我是div
+        </div>
+	</Child>
+
+</template>
+
+
+<!-- 子组件 -->
+<template>
+	<solt name="abc"> </solt>
+</template>
+```
+
+
+
+### 作用域插槽
+
+> 作用域插槽是依赖父组件决定子组件的展现
+
+```vue
+<!-- 示例 -->
+<!-- 父组件 -->
+<template>
+	<!-- 接收子组件传过来的数据,让父组件来决定如何渲染 -->
+	<div slot-scope="obj" slot="yes">
+        {{slotProps.obj.name}}
+    </div>
+</template>
+```
+
+```vue
+<!-- 子组件 -->
+<template>
+	<ul>
+        <li v-for="item in obj" :key="item.id">
+            <!-- 将子组件当中的数据传递给父组件当中的某个固定的区域 -->
+        	<solt name="yes" :obj="obj"></solt>
+    	</li>
+    </ul>
+</template>
+<script>
+	export default {
+        data(){
+            return {
+                obj : [
+                    {id:1,name:'aaa'},
+                    {id:2,name:'bbb'},
+                    {id:3,name:'ccc'}
+                ]
+            }
+        }
+    }
+</script>
+```
+
+
+
+# Vuex
+
+1. Vuex是一个转为Vue.js应用程序开发的状态管理模式，它采用集中式存储管理应用的所有组件的状态，并以响应的规则保证状态以一种可预测的方式发生变化，我们也可以认为它也是一种组件间通信的方式，并且适用于任意组件
+2. 理解：对vue应用中多个组件的共享状态进行集中式的管理（读/写）
+3. 作用：
+   1. 多个视图依赖于同一状态
+   2. 来自不同视图的行为需要变更同一状态
+   3. 以前的解决办法
+      - 将数据以及操作数据的行为都定义在父组件
+      - 将数据以及操作数据的行为传递给需要的各个子组件（有可能需要多级传递）
+   4. vuex就是用来解决这个问题的
+4. 使用场景：
+   - Vuex可以帮助我们管理共享状态，并附带了更多的概念和框架，这需要对短期和长期小以进行权衡
+   - 也就是说，应用简单（组件比较少）就不需要使用（但是可以），如果应用复杂，使用就会带来很大的边界
+5. Vuex核心：把所有的共享状态数据拿出来放在Vuex中进行集中式管理
+   - Vuex的4个核心概念
+     1. state	代表初始状态数据，是一个包含n个属性（不是方法）的对象
+     2. mutations    代表直接修改数据的数据，是一个包含n个直接修改状态数据方法的对象（用来让actions的行为调用）
+     3. actions    代表用户行为数据，是一个包含n个用户行为回调方法的对象，（用来映射组件用户的行为回调函数）
+     4. getters    代表计算属性数据，是一个包含n个计算属性的方法的对象
+   - 注意：
+     - 只能通过mutations的方法去直接修改，也就是说想要写state数据必须通过mutations
+     - actions里面是用户操作的行为回调函数，它的内部可以写异步和判断
+
+
+
+# ElementUI
+
+安装
+
+```shell
+npm i element-ui -S
+```
+
+配置webpack设置loader
+
+```js
+{
+	test:/\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
+    loader:'file-loader'
+}
+```
+
+完整引入
+
+```js
+import Vue from 'vue';
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+import App from './App.vue';
+
+Vue.use(ElementUI);
+
+new Vue({
+  el: '#app',
+  render: h => h(App)
+});
+```
+
+按需引入
+
+- 安装
+
+  ```shell
+  npm install babel-plugin-component -D
+  ```
+
+- 将 .babelrc 修改为：
+
+  ```js
+  {
+    "presets": [["es2015", { "modules": false }]],
+    "plugins": [
+      [
+        "component",
+        {
+          "libraryName": "element-ui",
+          "styleLibraryName": "theme-chalk"
+        }
+      ]
+    ]
+  }
+  ```
+
+- 或者手动引入
+
+  ```js
+  import Vue from 'vue';
+  import { Button, Select } from 'element-ui';
+  
+  Vue.component(Button.name, Button);
+  Vue.component(Select.name, Select);
+  /* 或写为
+   * Vue.use(Button)
+   * Vue.use(Select)
+   */
+  ```
+
+  
 
 
 
@@ -1152,6 +1518,35 @@ Date.now()  // 获取1970年到现在的毫秒数
 <!-- 原生写法 ： event.preventDefault() -->
 ```
 
+### 配置代理解决跨域问题
+
+```js
+//假设发送请求的地址如下
+axios({
+	url:"http://loaclhost:8080/api/getInfo",
+    method:'GET',
+    params:{
+        attr : 'value'
+    }
+})
+```
+
+webpack设置代理
+
+```js
+module.export = {
+	devServer : {
+        proxy : {
+            '/api':{
+                target:"http://loaclhost:3000",
+                pathRewrite :{ "^/api":""},
+                changeOrigin : true
+            }
+        }
+    }
+}
+```
+
 
 
 ## 工具
@@ -1159,8 +1554,6 @@ Date.now()  // 获取1970年到现在的毫秒数
 ### chrome 助手
 
 >  用于能访问谷歌的商店，点击下载   [google-access-helper-2.3.0.zip](http://180.76.238.89:8111/google-access-helper-2.3.0.zip) 
-
-
 
 ### 谷歌工具
 
@@ -1260,7 +1653,7 @@ module.exports = {
 
 ### 配置webpack，给路径取别名
 
-```
+```js
 module.exports = {
     ...
     resolve:{
@@ -1270,5 +1663,51 @@ module.exports = {
     	}
     }
 }
+```
+
+### 配置webpack，解析async和await语法
+
+```js
+// 方法一，在webpack.config.js中设置
+module.export = {
+	entry :["@babel/polyfill","./src/index.js(入口文件的路径)"]
+}
+
+// 方法2，在vue项目入口文件index.js中导入
+import "@babel/polyfill"
+```
+
+
+
+### Vue-resource插件（类似axios）
+
+下载安装
+
+```shell
+npm i vue-resource -S
+```
+
+导入并使用这个插件
+
+```js
+import VueResource from "vue-resource"
+import Vue from 'vue'
+Vue.use(VueResource)
+```
+
+使用
+
+```js
+this.$http({
+	url:'http://.....',
+	method:'GET',
+	params:{
+		attr : "value"
+	}
+}).then(res=>{
+	
+},err=>{
+	
+})
 ```
 
