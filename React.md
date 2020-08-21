@@ -489,7 +489,7 @@ class ClassComponents extends React.Component {
 3. 运行
 
    ```shell
-   yarn statr
+   yarn start
    ```
 
 4. 打包
@@ -638,7 +638,7 @@ class ClassComponents extends React.Component {
 
    
 
-2. 在祖组件最外层报上Provider，传递给后代组件的数据与接收后代组件的函数
+2. 在祖组件最外层包上Provider，传递给后代组件的数据与接收后代组件的函数
 
    ```react
    setAge = (num) =>{
@@ -1437,44 +1437,34 @@ yarn add redux-thunk
 > 在src目录下创建一个文件setupProxy.js
 >
 > ```js
-> const proxy = require('http-proxy-middleware')
+> const {createProxyMiddleware} = require('http-proxy-middleware')
 > 
 > module.exports = function(app){
 > 	app.use(
-> 		proxy(
+> 		createProxyMiddleware(
 > 			'/api',
 > 			{
-> 				"target" : "http://localhost:3000" ,
+> 				"target" : "https://m.you.163.com" ,
 > 				"changeOrigin" : true ,
 > 				"pathRewrite" : {
 > 					"^/api" : ""
 > 				}
 > 			}
-> 		),
->         proxy(
-> 			'/api',
-> 			{
-> 				"target" : "http://localhost:4000" ,
-> 				"changeOrigin" : true ,
-> 				"pathRewrite" : {
-> 					"^/api" : ""
-> 				}
-> 			}
-> 		)
-> 	)
+>         )
+>        )
 > }
 > ```
->
+> 
 > 在入口文件index.js文件中引入setupProxy文件
->
+> 
 > ```js
 > require('./setupProxy.js')
 > ```
->
+> 
 > 组件发送axios请求
->
+> 
 > ```js
-> axios.get('/api/home').then(...).catch(...)
+>axios.get('/api/home').then(...).catch(...)
 > ```
 
 
