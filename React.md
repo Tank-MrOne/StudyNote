@@ -936,6 +936,26 @@ export default  function MyNavLink(props) {
    > // 只有在history模式才可使用
    > ```
 
+4. props
+
+   > 传入标签属性props参数
+   >
+   > ```react
+   > <Route path="/home" render={()=>(<Home id="xxx"/>)} />
+   > ```
+   >
+   > 读取props数据
+   >
+   > ```js
+   > export default class Message extends Component {
+   >  render() {
+   >      // 通过props获取
+   >      const id = this.props.id
+   >      return <h2>子路由</h2>
+   >  }
+   > }
+   > ```
+
 
 
 ### 包装非路由组件
@@ -949,13 +969,15 @@ export default  function MyNavLink(props) {
 > import {NavLink, withRouter} from 'react-router-dom'
 > 
 > function MyNavLink(props) {
->     return <NavLink activeClassName="myActive" {...props}></NavLink>
+>  return <NavLink activeClassName="myActive" {...props}></NavLink>
 > }
 > 
 > // 向外暴露新的路由组件函数
 > export default withRouter(MyNavLink)
 > 
 > ```
+>
+> NavLink自定义路由组件中当被激活后会生成一个className "active"，当然也可以修改这个类名，我们可以通过这个类名来对被激活的按钮或链接进行样式的修饰
 
 
 
@@ -1548,6 +1570,19 @@ render(){
 
 
 # React 高级
+
+## props能不能直接修改
+
+- 在react中，props属性是属于readonly属性，官方不建议通过props属性修改属性值
+- 如果直接修改props属性的基本数据类型，那程序直接报错
+- 如果修改的是props属性的引用数据类型中的属性，那么不会报错
+- 直接修改props属性并不会更新视图
+
+> 在Vue中
+>
+> - 修改props属性的基本数据类型，控制台会发出警告提示，但不会触发视图的更新
+> - 修改props属性的引用数据类型，程序不会报错，但会触发视图的更新
+> - 如果需要在子组件中通过props修改数据，可以将原数据进行深度拷贝，但一般我们不会去这样的操作
 
 ## Refs转发
 
@@ -2945,10 +2980,6 @@ ReactDOM.render(
   </pre>
   </details>
   
-
-  
-  
-
 
 
 

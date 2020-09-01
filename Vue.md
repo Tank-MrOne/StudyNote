@@ -20,7 +20,7 @@
 
    ```html
    <body>
-       <div id="root">n'n'n'n'n'n'n'n'n'n'n'n'n'n'n'n'n'n'n
+       <div id="root">
            {{msg}}
        </div>
    </body>
