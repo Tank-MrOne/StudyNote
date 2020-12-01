@@ -89,10 +89,12 @@
         _createVNode("button", { onClick: _ctx.onClick }, "按钮", 8 /* PROPS */, ["onClick"])
       ]))
     }
+    
+  // 按钮 对应的 8 就是一个静态标记
     ```
 
     - 开启事件监听缓存之后
-
+    
     ```js
     import { createVNode as _createVNode, openBlock as _openBlock, createBlock as _createBlock } from "vue"
     
@@ -102,14 +104,103 @@
           onClick: _cache[1] || (_cache[1] = (...args) => (_ctx.onClick(...args)))
         }, "按钮")
       ]))
-    }
+  }
+    
+    // 开启缓存后没有静态标记，没有静态标记不会进行比较，不会追踪
     ```
-
+    
     
 
 - ssr 渲染
 
-  - 当有大量静态的内容时候，这些内容会被当做纯字符串推进一个buffer里面，即使存在动态的绑定，
+  - 当有大量静态的内容时候，这些内容会被当做纯字符串推进一个buffer里面，即使存在动态的绑定，会通过模板插值嵌入进去，这样会比通过虚拟dom来渲染的快上很多很多
+  - 当静态内容大到一定量级的时候，会用_createStaticVNode方法在客户端去生成一个static node，这些静态node，会被直接innerHTML，就不需要创建对象，然后根据对象渲染
+
+
+
+## 创建Vue3的三种方式
+
+- Vue-cli
+
+  - ```shell
+    npm install -g @vue/cli
+    ```
+
+  - ```shell
+    vue create 项目名称
+    ```
+
+  - ```shell
+    cd 项目名称
+    ```
+
+  - ``` shell
+    vue add vue-next
+    ```
+
+  - ``` shell
+    npm run serve
+    ```
+
+  
+
+- Webpack
+
+  - ```shell
+    git clone https://github.com/vuejs/vue-next-webpack-preview.git 项目名称
+    ```
+
+  - ```shell
+    cd 项目名称
+    ```
+
+  - ```shell
+    npm install
+    ```
+
+  - ```shell
+    npm run dev
+    ```
+
+    
+
+- Vite
+
+  - Vite是vue作者开发的一款意图取代webpack的工具
+
+  - 其实现原理是利用ES6的import会发送请求去加载文件的特性，拦截这些请求，做一些预编译，省去webpack漫长的打包时间
+
+  - 安装Vite
+
+    ``` shell
+    npm install -g create-vite-app
+    ```
+
+  - 利用Vite创建Vue3项目
+
+    ```shell
+    create-vite-app 项目名称
+    ```
+
+  - 安装依赖运行项目
+
+    ``` shell
+    cd 项目名称
+    ```
+
+    ``` shell
+    npm install
+    ```
+
+    ``` shell
+    npm run dev
+    ```
+
+    
+
+
+
+
 
 
 
